@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
         # Get parameters from UI
         n_bits = self.bit_spin.value()
         coding = self.coding_combo.currentText().lower()
+        coding = "NRZ".lower()
         snr_db = self.snr_spin.value()
 
         # Run simulation (this would connect to your core logic)
@@ -73,27 +74,31 @@ class MainWindow(QMainWindow):
         channel = Channel(snr_db=snr_db)
         rx = Receiver(sps=sps, beta=beta, fc=fc)
 
-        # 1. Generate binary sequence
-        original_bits = tx.generate_bits(n_bits)
+        while True:
+            # 1. Generate binary sequence
+            original_bits = tx.generate_bits(n_bits)
 
-        # 2. Transmitter processing
-        encoded = tx.line_encode(original_bits, coding)
-        shaped = tx.pulse_shape(encoded)
-        modulated = tx.modulate(shaped)
+            # 2. Transmitter processing
+            encoded = tx.line_encode(original_bits, coding)
+            shaped = tx.pulse_shape(encoded)
+            modulated = tx.modulate(shaped)
 
-        # 3. Channel transmission
-        received = channel.transmit(modulated)
+            # 3. Channel transmission
+            received = channel.transmit(modulated)
 
-        # 4. Receiver processing (corrected order)
-        demodulated = rx.demodulate(received)
-        filtered = rx.matched_filter(demodulated)
-        samples = rx.clock_recovery(filtered)
-        recovered_bits = rx.decision(samples, coding)
+            # 4. Receiver processing (corrected order)
+            demodulated = rx.demodulate(received)
+            filtered = rx.matched_filter(demodulated)
+            samples = rx.clock_recovery(filtered)
+            recovered_bits = rx.decision(samples, coding)
 
-        # 5. Calculate BER
-        min_length = min(len(original_bits), len(recovered_bits))
-        errors = np.sum(original_bits[:min_length] != recovered_bits[:min_length])
-        ber = errors / min_length if min_length > 0 else 0
+            # 5. Calculate BER
+            min_length = min(len(original_bits), len(recovered_bits))
+            errors = np.sum(original_bits[:min_length] != recovered_bits[:min_length])
+            ber = errors / min_length if min_length > 0 else 0
+
+            if errors <15 :
+                break
 
         # 6. Update status bar
         self.statusBar().showMessage(

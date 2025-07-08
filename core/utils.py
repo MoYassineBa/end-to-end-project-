@@ -15,8 +15,8 @@ def rrc_filter(sps, beta, span):
             h[i] = (np.sin(np.pi*ti*(1-beta)) +
                     4*beta*ti*np.cos(np.pi*ti*(1+beta))) / \
                     (np.pi*ti*(1-(4*beta*ti)**2))
-    # return h / np.sqrt(np.sum(h**2))
-    return h / np.max(h)
+    return h / np.sqrt(np.sum(h**2))
+
 
 def awgn(signal, snr_db):
     """Add AWGN noise"""

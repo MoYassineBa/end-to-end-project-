@@ -9,7 +9,7 @@ class Transmitter:
         self.span = span  # Filter span
         self.fc = fc  # Carrier frequency
         self.filter_coeff = rrc_filter(sps, beta, span)
-        self.phase = 0
+
 
     def generate_bits(self, n_bits):
         """Generate random binary sequence"""
@@ -38,6 +38,5 @@ class Transmitter:
     def modulate(self, baseband):
         """BPSK modulation"""
         t = np.arange(len(baseband)) / self.sps
-        self.phase = 0  # Conserver la même phase
-        carrier = np.cos(2 * np.pi * self.fc * t + self.phase)
+        carrier = np.cos(2 * np.pi * self.fc * t)
         return baseband * carrier
